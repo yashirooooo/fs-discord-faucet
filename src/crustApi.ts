@@ -1,29 +1,19 @@
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import { typesBundleForPolkadot } from '@crustio/type-definitions';
-import { chainAddr, seeds } from './consts';
+import { ApiPromise } from '@polkadot/api';
+import { seeds } from './consts';
 import { sendTx } from './util/tx';
 import { parseObj } from './util';
-import { applyCount } from './consts'; 
+import { trasferAmount } from './consts'; 
+import BN from 'bn.js';
 
-export async function makeFree(address: string, count: number = applyCount) {
+const UNIT = new BN(1_000_000_000_000);
+
+export async function makeFree(api: ApiPromise, address: string, amount: number = trasferAmount) {
     try {
         // 1. Try connect to Crust Network
-        const api = new ApiPromise({
-            provider: new WsProvider(chainAddr),
-            typesBundle: typesBundleForPolkadot,
-        });
         await api.isReadyOrError;
-        const accountOrders = parseObj(await api.query.market.freeOrderAccounts(address));
-        if (accountOrders) {
-            return {
-                status: false,
-                message: 'Error',
-                details: ' The account already in free accounts'
-            }
-        }
-        const tx = api.tx.market.addIntoFreeOrderAccounts(
+        const tx = api.tx.balances.transfer(
             address,
-            count
+            UNIT.muln(amount)
         );
 
         const res = await sendTx(api, tx, seeds as string);

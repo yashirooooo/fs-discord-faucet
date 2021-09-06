@@ -1,47 +1,68 @@
 import axios from 'axios';
-import console from 'console';
 import { Octokit } from 'octokit';
 import { isValidAddr } from '..';
 import { githubUserName, githubRepoName, githubOauthToken } from '../consts'
 import { validateGithub } from '../util';
-const GitHub = require('github-api');
+import _ from 'lodash';
+
+export interface GithubApplicant {
+    address: string;
+    githubId: string;
+    githubName: string
+}
 
 // basic auth
 const octokit = new Octokit({ auth: githubOauthToken });
 
-export const parseIssue = async (issueId: number) => {
+export const parseIssue = async (issueId: number): Promise<GithubApplicant | string> => {
     let remoteIssue = await octokit.rest.issues.get({
         owner: githubUserName,
         repo: githubRepoName,
         issue_number: issueId
     })
-    // const issue = await remoteIssues.getIssue(issueId);
     const issueData = remoteIssue.data;
-    console.log('issueData', issueData);
     const issueTittle = issueData.title;
     const issueBody = issueData.body;
     if (isValidAddr(issueTittle) || isValidAddr(issueBody as string)) {
-        
-    }
-    const creatorId = issueData.user?.id;
-    try {
-        const userInfo = await axios({
-            method: 'get',
-            url: `https://api.github.com/user/${creatorId}`
-        }); 
-        console.log('result', userInfo)
-        const isValid = validateGithub(Date.parse(userInfo.data.created_at));
-        console.log('isValid', isValid)
-        if (isValid) {
-            return {
-                address: issueTittle || issueBody,
-                applicant: creatorId,
-                githubName: userInfo.data.login
+        const creatorId = issueData.user?.id;
+        try {
+            const userInfo = await axios({
+                method: 'get',
+                url: `https://api.github.com/user/${creatorId}`
+            });
+            const isValid = validateGithub(Date.parse(userInfo.data.created_at));
+            const isStarred = await maybeStarred(creatorId as number);
+            if (isValid) {
+                if (isStarred) {
+                    return {
+                        address: issueTittle || issueBody as unknown as string,
+                        githubId: creatorId as unknown as string,
+                        githubName: userInfo.data.login
+                    }
+                } else {
+                    return 'You do not starred the specified repository';
+                }
+            } else {
+                return "Your github account application is less than 6 months old";
             }
-        } else {
-            
+        } catch (error) {
+            return error.message;
         }
-    } catch (error) {
-        
+    } else {
+        return 'Illegal issue format'
     }
+}
+
+export const maybeStarred = async (githubId: number) => {
+    const result = await axios({
+        method: 'get',
+        url: `https://api.github.com/repos/${githubUserName}/${githubRepoName}/stargazers`
+    });
+
+    const starInfo = result.data as any[];
+    const index = _.findIndex(starInfo, (info) => {
+        return info.id == githubId
+    })
+
+    return index >= 0;
 }
