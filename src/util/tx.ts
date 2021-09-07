@@ -62,11 +62,11 @@ async function sendTx(
                                     message: `${error.section}.${error.name}`,
                                     details: error.documentation.join(''),
                                 })
-                            } catch (error) {
+                            } catch (e: any) {
                                 resolve({
                                     status: false,
                                     message: 'Error',
-                                    details: error as any
+                                    details: e.message
                                 })
                             }
                         }

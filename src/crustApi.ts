@@ -24,11 +24,11 @@ export async function makeFree(api: ApiPromise, address: string, amount: number 
             //   throw new Error(`Make ${address} free strorage failed with ${res?.details}`);
         }
         return res;
-    } catch (e) {
+    } catch (e: any) {
         return {
             status: false,
             message: 'Error',
-            details: e
+            details: e.message
         };
     }
 }

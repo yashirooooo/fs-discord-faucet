@@ -50,8 +50,7 @@ export const parseIssue = async (issueId: number): Promise<IusseParseResult> => 
                                     githubName: userInfo.data.login
                                 }
                             }
-                        } else {
-                            
+                        } else {  
                             return {
                                 status: false,
                                 result: 'You do not starred the specified repository'
@@ -66,7 +65,7 @@ export const parseIssue = async (issueId: number): Promise<IusseParseResult> => 
                 } catch (error) {
                     return {
                         status: false,
-                        result: error
+                        result: 'Can not get github user'
                     };
                 }
             } else {
@@ -84,7 +83,7 @@ export const parseIssue = async (issueId: number): Promise<IusseParseResult> => 
     } catch (error) {
         return {
             status: false,
-            result: error
+            result: 'Can not found issue'
         }
     }
 }
