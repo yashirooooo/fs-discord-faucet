@@ -54,15 +54,17 @@ const bot = () => {
                         const issue = uObj.pathname?.substr(prefix.length);
                         if (_.isNumber(Number(issue))) {       
                             const parseResult = await parseIssue(Number(issue));
-                            if (typeof parseResult !== 'string') {
+                            if (parseResult.status) {
                                 const applyResult = await handleWithLock(apiLocker, 'github_apply', async () => {
-                                    return await applyByGithub(api, parseResult, db)
+                                    if (parseResult.githubInfo) {
+                                        return await applyByGithub(api, parseResult.githubInfo, db);
+                                    }
                                 }, {
                                     value: "SameTxIsHandling"
                                 });
                                 msg.reply(applyResult.value);
                             } else {
-                                msg.reply(parseResult);
+                                msg.reply(parseResult.result);
                             }
                         } else {
                             msg.reply('Invalid issue');

@@ -11,10 +11,16 @@ export interface GithubApplicant {
     githubName: string
 }
 
+export interface IusseParseResult {
+    status: boolean;
+    result?: any;
+    githubInfo?: GithubApplicant
+}
+
 // basic auth
 const octokit = new Octokit({ auth: githubOauthToken });
 
-export const parseIssue = async (issueId: number): Promise<GithubApplicant | string> => {
+export const parseIssue = async (issueId: number): Promise<IusseParseResult> => {
     try {
         let remoteIssue = await octokit.rest.issues.get({
             owner: githubUserName,
@@ -37,27 +43,49 @@ export const parseIssue = async (issueId: number): Promise<GithubApplicant | str
                     if (isValid) {
                         if (isStarred) {
                             return {
-                                address: issueTittle || issueBody as any as string,
-                                githubId: creatorId as any as string,
-                                githubName: userInfo.data.login
+                                status: true,
+                                githubInfo: {
+                                    address: issueTittle || issueBody as any as string,
+                                    githubId: creatorId as any as string,
+                                    githubName: userInfo.data.login
+                                }
                             }
                         } else {
-                            return 'You do not starred the specified repository';
+                            
+                            return {
+                                status: false,
+                                result: 'You do not starred the specified repository'
+                            };
                         }
                     } else {
-                        return "Your github account application is less than 6 months old";
+                        return {
+                            status: false,
+                            result: "Your github account application is less than 6 months old"
+                        };
                     }
                 } catch (error) {
-                    return error as any as string;
+                    return {
+                        status: false,
+                        result: error
+                    };
                 }
             } else {
-                return 'Illegal issue format'
+                return {
+                    status: false,
+                    result: 'Illegal issue format'
+                } 
             }
         } else {
-            return 'Can not found issue'
+            return {
+                status: false,
+                result: 'Can not found issue'
+            }
         }
     } catch (error) {
-        return error as any as string
+        return {
+            status: false,
+            result: error
+        }
     }
 }
 
