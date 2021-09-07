@@ -4,7 +4,7 @@ import { sendTx } from './util/tx';
 import { trasferAmount } from './consts'; 
 import BN from 'bn.js';
 
-const UNIT = new BN(1_000_000_000);
+const UNIT = new BN(1_000_000_000_000);
 
 export async function makeFree(api: ApiPromise, address: string, amount: number = trasferAmount) {
     try {
@@ -12,7 +12,7 @@ export async function makeFree(api: ApiPromise, address: string, amount: number 
         await api.isReadyOrError;
         const tx = api.tx.balances.transfer(
             address,
-            UNIT.muln(amount).toString()
+            UNIT.muln(amount * 1000).divn(1000).toString()
         );
         const res = await sendTx(api, tx, seeds as string);
         if (res?.status) {
