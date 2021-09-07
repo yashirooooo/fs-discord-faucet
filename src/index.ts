@@ -54,6 +54,7 @@ const bot = () => {
                         const issue = uObj.pathname?.substr(prefix.length);
                         if (_.isNumber(Number(issue))) {       
                             const parseResult = await parseIssue(Number(issue));
+                            console.log('parseResult', JSON.stringify(parseResult))
                             if (parseResult.status) {
                                 const applyResult = await handleWithLock(apiLocker, 'github_apply', async () => {
                                     if (parseResult.githubInfo) {
