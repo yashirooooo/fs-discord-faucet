@@ -66,7 +66,7 @@ async function sendTx(
                                 resolve({
                                     status: false,
                                     message: 'Error',
-                                    details: error.message
+                                    details: error as any
                                 })
                             }
                         }

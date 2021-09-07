@@ -15,7 +15,6 @@ export async function makeFree(api: ApiPromise, address: string, amount: number 
             address,
             UNIT.muln(amount)
         );
-
         const res = await sendTx(api, tx, seeds as string);
         if (res?.status) {
             console.log(`Make ${address} free strorage success`);
@@ -31,7 +30,7 @@ export async function makeFree(api: ApiPromise, address: string, amount: number 
         return {
             status: false,
             message: 'Error',
-            details: e.message
+            details: e
         };
     }
 }

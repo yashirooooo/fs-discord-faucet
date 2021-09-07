@@ -9,7 +9,7 @@
     "start": "node build/src/index.js"
   },
   "author": "",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "dependencies": {
     "@crustio/type-definitions": "1.2.0",
     "@polkadot/api": "4.2.2-4",
