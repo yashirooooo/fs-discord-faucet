@@ -1,7 +1,6 @@
 import { ApiPromise } from '@polkadot/api';
 import { seeds } from './consts';
 import { sendTx } from './util/tx';
-import { parseObj } from './util';
 import { trasferAmount } from './consts'; 
 import BN from 'bn.js';
 
@@ -13,7 +12,7 @@ export async function makeFree(api: ApiPromise, address: string, amount: number 
         await api.isReadyOrError;
         const tx = api.tx.balances.transfer(
             address,
-            UNIT.muln(amount)
+            UNIT.mul(new BN(amount))
         );
         const res = await sendTx(api, tx, seeds as string);
         if (res?.status) {
@@ -24,7 +23,6 @@ export async function makeFree(api: ApiPromise, address: string, amount: number 
             );
             //   throw new Error(`Make ${address} free strorage failed with ${res?.details}`);
         }
-        api.disconnect();
         return res;
     } catch (e) {
         return {

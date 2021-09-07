@@ -41,6 +41,7 @@ const bot = () => {
 
         client.on('messageCreate', async (msg: { channelId: any; content: any; author: { id: any; }; reply: (arg0: string) => void; }) => {
             const channelId = msg.channelId;
+            console.log('channelId', channelId)
             if (channel == channelId) {
                 const content = msg.content;
                 //   const authorId = msg.author.id;
