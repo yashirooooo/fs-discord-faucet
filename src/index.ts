@@ -10,6 +10,7 @@ import { githubUserName } from './consts';
 import url from 'url';
 import DB from './db/index';
 import { applyByGithub } from './service/apply';
+import _ from 'lodash';
 const db = new DB(dbEndpoint as string);
 
 const l = logger('main');
@@ -50,17 +51,21 @@ const bot = () => {
                     const uObj = url.parse(content);
                     const prefix = `/${githubUserName}/${githubRepoName}/issues/`
                     if (uObj.pathname?.startsWith(prefix)) {
-                        const issue = uObj.pathname?.substr(prefix.length)
-                        const parseResult = await parseIssue(Number(issue));
-                        if (typeof parseResult !== 'string') {
-                            const applyResult = await handleWithLock(apiLocker, 'github_apply', async () => {
-                                return await applyByGithub(api, parseResult, db)
-                            }, {
-                                value: "SameTxIsHandling"
-                            });
-                            msg.reply(applyResult.value);
+                        const issue = uObj.pathname?.substr(prefix.length);
+                        if (_.isNumber(Number(issue))) {       
+                            const parseResult = await parseIssue(Number(issue));
+                            if (typeof parseResult !== 'string') {
+                                const applyResult = await handleWithLock(apiLocker, 'github_apply', async () => {
+                                    return await applyByGithub(api, parseResult, db)
+                                }, {
+                                    value: "SameTxIsHandling"
+                                });
+                                msg.reply(applyResult.value);
+                            } else {
+                                msg.reply(parseResult);
+                            }
                         } else {
-                            msg.reply(parseResult);
+                            msg.reply('Invalid issue');
                         }
                     }
                 }

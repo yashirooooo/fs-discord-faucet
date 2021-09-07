@@ -12,7 +12,7 @@ export async function makeFree(api: ApiPromise, address: string, amount: number 
         await api.isReadyOrError;
         const tx = api.tx.balances.transfer(
             address,
-            UNIT.mul(new BN(amount))
+            UNIT.mul(new BN(amount)).toString()
         );
         const res = await sendTx(api, tx, seeds as string);
         if (res?.status) {

@@ -23,33 +23,37 @@ export const parseIssue = async (issueId: number): Promise<GithubApplicant | str
     const issueData = remoteIssue.data;
     const issueTittle = issueData.title;
     const issueBody = issueData.body;
-    if (isValidAddr(issueTittle) || isValidAddr(issueBody as string)) {
-        const creatorId = issueData.user?.id;
-        try {
-            const userInfo = await axios({
-                method: 'get',
-                url: `https://api.github.com/user/${creatorId}`
-            });
-            const isValid = validateGithub(Date.parse(userInfo.data.created_at));
-            const isStarred = await maybeStarred(creatorId as number);
-            if (isValid) {
-                if (isStarred) {
-                    return {
-                        address: issueTittle || issueBody as any as string,
-                        githubId: creatorId as any as string,
-                        githubName: userInfo.data.login
+    if (issueData) {
+        if (isValidAddr(issueTittle) || isValidAddr(issueBody as string)) {
+            const creatorId = issueData.user?.id;
+            try {
+                const userInfo = await axios({
+                    method: 'get',
+                    url: `https://api.github.com/user/${creatorId}`
+                });
+                const isValid = validateGithub(Date.parse(userInfo.data.created_at));
+                const isStarred = await maybeStarred(creatorId as number);
+                if (isValid) {
+                    if (isStarred) {
+                        return {
+                            address: issueTittle || issueBody as any as string,
+                            githubId: creatorId as any as string,
+                            githubName: userInfo.data.login
+                        }
+                    } else {
+                        return 'You do not starred the specified repository';
                     }
                 } else {
-                    return 'You do not starred the specified repository';
+                    return "Your github account application is less than 6 months old";
                 }
-            } else {
-                return "Your github account application is less than 6 months old";
+            } catch (error) {
+                return error as any as string;
             }
-        } catch (error) {
-            return error as any as string;
+        } else {
+            return 'Illegal issue format'
         }
     } else {
-        return 'Illegal issue format'
+        return 'Can not found issue'
     }
 }
 
