@@ -35,8 +35,8 @@ export const parseIssue = async (issueId: number): Promise<GithubApplicant | str
             if (isValid) {
                 if (isStarred) {
                     return {
-                        address: issueTittle || issueBody as unknown as string,
-                        githubId: creatorId as unknown as string,
+                        address: issueTittle || issueBody as any as string,
+                        githubId: creatorId as any as string,
                         githubName: userInfo.data.login
                     }
                 } else {
@@ -46,7 +46,7 @@ export const parseIssue = async (issueId: number): Promise<GithubApplicant | str
                 return "Your github account application is less than 6 months old";
             }
         } catch (error) {
-            return error.message;
+            return error as any as string;
         }
     } else {
         return 'Illegal issue format'
