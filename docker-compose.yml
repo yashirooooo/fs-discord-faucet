@@ -1,8 +1,8 @@
 version: '3'
 
 services:
-  faucet-service:
-    image: faucet-service
+  fs-faucet-service:
+    image: fs-faucet-service
     restart: always
     environment:
       - TZ=Asia/Shanghai
