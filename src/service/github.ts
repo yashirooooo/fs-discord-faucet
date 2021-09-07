@@ -83,7 +83,7 @@ export const parseIssue = async (issueId: number): Promise<IusseParseResult> => 
     } catch (error) {
         return {
             status: false,
-            result: 'Can not found issue'
+            result: 'Invalid issue'
         }
     }
 }
